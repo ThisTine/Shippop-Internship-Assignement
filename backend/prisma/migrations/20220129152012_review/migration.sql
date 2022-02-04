@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Item" ADD COLUMN     "reviewcount" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "reviewscore" INTEGER NOT NULL DEFAULT 0;

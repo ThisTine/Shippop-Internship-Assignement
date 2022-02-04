@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id String @id @default(uuid())
+  firstname String
+  lastname String
+  email String @unique
+  pwd String
+  location UserLocation?
+  items Item[]
+  cart CartItem[]
+  whishlists UserWhishlist[]
+  reviewes UserOnReview[]
+  checkouts CheckOutLog[]
+}
+model UserLocation {
+  id String @id @default(uuid())
+  owner User @relation(fields: [userID],references: [id])
+  userID String
+  firstname String
+  lastname String
+  country String
+  location String
+  district String
+  city String
+  province String
+  zipcode String
+  phonenumber String
+}
+
+model LogisticChannel{
+  id String @id @default(uuid())
+  price Decimal @default(0)
+  name String
+}
+
+model CheckOutLog{
+  id String @id @default(uuid())
+  userID String
+  user User @relation(fields: [userID],references: [id])
+  data Json
+  createdDate DateTime @default(now())
+  paymentChannel String
+  price Decimal
+}
+
+model CartItem{
+  userID String
+  user User @relation(fields: [userID],references: [id])
+  amount Int @default(1)
+  itemID String
+  item Item @relation(fields: [itemID],references: [id])
+  @@unique([itemID,userID])
+}
+
+model UserWhishlist{
+  userID String
+  user User @relation(fields: [userID],references: [id])
+  itemID String
+  item Item @relation(fields: [itemID],references: [id])
+  @@unique([itemID,userID])
+}
+
+model UserOnReview{
+  userID String
+  user User @relation(fields: [userID],references: [id])
+  itemID String
+  rating Int @default(0)
+  items Item @relation(fields: [itemID],references: [id])
+  @@unique([itemID,userID])
+}
+
+model Item {
+  id String @id @default(uuid())
+  name String
+  publisher String?
+  description String @db.Text
+  price Decimal
+  ownerID String
+  owner User @relation(fields: [ownerID],references: [id])
+  createDate DateTime @default(now())
+  ishide Boolean @default(false)
+  amount Int
+  saleprice ItemOnSale?
+  categoryId String 
+  sold Int @default(0)
+  reviewcount Int @default(0)
+  reviewscore Int @default(0)
+  itemCategory ItemCategory @relation(fields: [categoryId], references: [id])
+  cartItemOnUser CartItem[]
+  whishlist UserWhishlist[]
+  reviews UserOnReview[]
+}
+
+model ItemCategory{
+  id String @id @default(uuid())
+  name String
+  items Item[]
+}
+model ItemOnSale{
+  itemID String @id
+  item Item @relation(fields: [itemID],references: [id])
+  newprice Decimal
+  expire DateTime
+}
